@@ -4,6 +4,7 @@ import logging
 import jinja2
 from os import environ
 
+
 class ApiSession(Session):
     def __init__(self, ctfd_token, ctfd_host):
         """
@@ -73,7 +74,15 @@ def create_challenge_template(challenges_by_dictionary):
     template_env = jinja2.Environment(loader=template_loader)
     template_file = "first_note.md.jinja"
     template = template_env.get_template(template_file)
-    output_text = template.render(challenges=challenges_by_dictionary)
+    output_text = template.render(
+        challenges=challenges_by_dictionary,
+        CTF_NAME=environ["CTF_NAME"],
+        CTF_TEAM_NAME=environ["CTF_TEAM_NAME"],
+        CTFD_HOST=environ["CTFD_HOST"],
+        CTF_START_TIME=environ["CTF_START_TIME"],
+        CTF_END_TIME=environ["CTF_END_TIME"],
+        CTF_TEAM_CAPTAIN=environ["CTF_TEAM_CAPTAIN"]
+    )
     with open("first_note.md", "w") as f:
         f.write(output_text)
 
@@ -88,4 +97,3 @@ if __name__ == "__main__":
     challenge_dict = api.get_challenges_by_category()
 
     create_challenge_template(challenge_dict)
-

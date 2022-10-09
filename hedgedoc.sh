@@ -54,6 +54,25 @@ get_version_number()
   echo "Latest HedgeDoc version is $version"
 }
 
+
+create_ctf_base_page()
+{
+  echo "[-] Switching HedgeDoc back to manual login mode"
+  sed -i "/CMD_EMAIL=false/c\#CMD_EMAIL=false" .env
+  docker-compose -p hedgedoc up -d
+
+  echo "[-] Creating CTF base page"
+  docker-compose -p hedgedoc cp first_note.md.jinja app:/tmp
+  docker-compose -p hedgedoc cp ctfd-api-automation.py app:/tmp
+  docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc login --email admin@user.com foobar"
+  docker-compose -p hedgedoc exec app /bin/bash -c "cd /tmp && python3 /tmp/ctfd-api-automation.py"
+  docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc import /tmp/first_note.md"
+
+  echo "[-] Switching HedgeDoc back to GitHub Login mode"
+  sed -i "/#CMD_EMAIL=false/c\CMD_EMAIL=false" .env
+  docker-compose -p hedgedoc up -d
+}
+
 check_docker_tools
 
 if [ "$1" = "init" ]; then
@@ -69,16 +88,14 @@ if [ "$1" = "init" ]; then
   docker-compose -p hedgedoc exec app /bin/bash -c "ln -s /hedgedoc/cli/bin/hedgedoc /usr/local/bin/hedgedoc"
   docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc login --email admin@user.com foobar"
 
-  docker-compose -p hedgedoc cp first_note.md.jinja app:/tmp
-  docker-compose -p hedgedoc cp ctfd-api-automation.py app:/tmp
-  docker-compose -p hedgedoc exec app /bin/bash -c "cd /tmp && python3 /tmp/ctfd-api-automation.py"
-  docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc import /tmp/first_note.md"
-
-
   # reload hedgedoc. Nobody else should be able to create an account via username and password.
   sed -i "/#CMD_EMAIL=false/c\CMD_EMAIL=false" .env
   docker-compose -p hedgedoc up -d
 
+fi
+
+if [ "$1" = "create_note" ]; then
+  create_ctf_base_page
 fi
 
 if [ "$1" = "update" ]; then
