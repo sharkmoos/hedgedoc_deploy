@@ -30,6 +30,8 @@ CTF_END_TIME="Sun, Sept 30, 2022 00:00 AM" # the end time of the CTF
 
 CMD_GITHUB_CLIENTID=XXXXXXXXXXXXXXXXXXXX # GitHub OAuth App Client ID
 CMD_GITHUB_CLIENTSECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX # GitHub OAuth App Client Secret
+
+CMD_DOMAIN=127.0.0.1 # interface for HedgeDoc to listen on. This should be the public IP address of the server
 ```
 
 ## The Script
