@@ -1,0 +1,30 @@
+# CTF_NAME
+
+FOR GLORY, and FLAGS! 
+
+## Table of Contents
+
+[TOC]
+
+## Details
+
+- Competing with team name: {{CTF_TEAM_NAME}}
+- Link to CTF website: {{CTFD_HOST}}
+- Run duration: [time={{CTF_START_TIME}}] - [time={{CTF_END_TIME}}]
+
+## Players
+
+- Captain: [name={{CTF_TEAM_CAPTAIN}}]
+- [name=]
+
+## Challenge List
+
+{% for challenge_category in challenges.items() %}
+### {{ challenge_category[0] }}
+{% for challenge in challenge_category[1] %}
+- {{ challenge }}
+{%- endfor %}
+{% endfor %}
+    
+
+## Solve List

@@ -49,8 +49,9 @@ update_version_environment()
 
 get_version_number()
 {
-  latest=$(curl -L https://hedgedoc.org/latest-release | grep -Eo 'URL=https://hedgedoc.org/releases/[0-9]+\.[0-9]+\.[0-9]+')
+  latest=$(curl -s -L https://hedgedoc.org/latest-release | grep -Eo 'URL=https://hedgedoc.org/releases/[0-9]+\.[0-9]+\.[0-9]+')
   version=$(echo $latest | cut -d"/" -f5)
+  echo "Latest HedgeDoc version is $version"
 }
 
 check_docker_tools
@@ -58,7 +59,26 @@ check_docker_tools
 if [ "$1" = "init" ]; then
   get_version_number
   update_version_environment  "$version"
-  docker-compose up -d
+  docker-compose -p hedgedoc up -d
+  echo "[-] Waiting for services to start..."
+  sleep 5
+
+  docker-compose -p hedgedoc exec app /bin/bash -c "apt update && apt install -y --no-install-recommends curl git wget jq python3 python3-pip"
+  docker-compose -p hedgedoc exec app /bin/bash -c "pip3 install jinja2 requests"
+  docker-compose -p hedgedoc exec app /bin/bash -c "git clone https://github.com/hedgedoc/cli /hedgedoc/cli"
+  docker-compose -p hedgedoc exec app /bin/bash -c "ln -s /hedgedoc/cli/bin/hedgedoc /usr/local/bin/hedgedoc"
+  docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc login --email admin@user.com foobar"
+
+  docker-compose -p hedgedoc cp first_note.md.jinja app:/tmp
+  docker-compose -p hedgedoc cp ctfd-api-automation.py app:/tmp
+  docker-compose -p hedgedoc exec app /bin/bash -c "cd /tmp && python3 /tmp/ctfd-api-automation.py"
+  docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc import /tmp/first_note.md"
+
+
+  # reload hedgedoc. Nobody else should be able to create an account via username and password.
+  sed -i "/#CMD_EMAIL=false/c\CMD_EMAIL=false" .env
+  docker-compose -p hedgedoc up -d
+
 fi
 
 if [ "$1" = "update" ]; then
@@ -67,9 +87,9 @@ if [ "$1" = "update" ]; then
 fi
 
 if [ "$1" = "start" ]; then
-  docker-compose up -d
+  docker-compose -p hedgedoc up -d
 fi
 
 if [ "$1" = "stop" ]; then
-  docker-compose down
+  docker-compose stop
 fi
