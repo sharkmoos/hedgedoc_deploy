@@ -11,7 +11,9 @@ services:
     restart: always
   app:
     # Make sure to use the latest release from https://hedgedoc.org/latest-release
-    image: quay.io/hedgedoc/hedgedoc:${HEDGEDOC_VERSION}
+    build:
+      context: .
+    container_name: hedgedoc_app_1
     env_file:
       - .env
     volumes:
