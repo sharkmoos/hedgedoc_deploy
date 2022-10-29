@@ -88,7 +88,7 @@ if [ "$1" = "init" ]; then
   docker-compose -p hedgedoc exec app /bin/bash -c 'curl -X POST "$HEDGEDOC_SERVER/register" --data "email=admin@user.com&password=foobar"'
   docker-compose -p hedgedoc exec app /bin/bash -c "hedgedoc login --email admin@user.com foobar"
 
-  create_ctf_base_page
+  # create_ctf_base_page
 
 fi
 
