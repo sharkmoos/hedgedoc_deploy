@@ -58,8 +58,8 @@ get_version_number()
 create_ctf_base_page()
 {
   echo "[-] Switching HedgeDoc back to manual login mode"
-  sed -i "/CMD_EMAIL=false/c\#CMD_EMAIL=false" .env
-  docker-compose -p hedgedoc up -d
+  sed -i "/CMD_EMAIL=false/c\CMD_EMAIL=true" .env
+  docker-compose -p hedgedoc up -d --force-recreate
   sleep 5
 
   echo "[-] Creating CTF base page"
@@ -72,8 +72,8 @@ create_ctf_base_page()
 
   # reload hedgedoc. Nobody else should be able to create an account via username and password.
   echo "[-] Switching HedgeDoc back to GitHub Login mode"
-  sed -i "/#CMD_EMAIL=false/c\CMD_EMAIL=false" .env
-  docker-compose -p hedgedoc up -d
+  sed -i "/#CMD_EMAIL=true/c\CMD_EMAIL=false" .env
+  docker-compose -p hedgedoc up -d --force-recreate
 }
 
 check_docker_tools
@@ -81,6 +81,7 @@ check_docker_tools
 if [ "$1" = "init" ]; then
   get_version_number
   update_version_environment  "$version"
+  sed -i "/CMD_EMAIL=false/c\CMD_EMAIL=true" .env
   docker-compose -p hedgedoc up -d
   echo "[-] Waiting for services to start..."
   sleep 10
