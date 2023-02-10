@@ -92,24 +92,24 @@ if [ "$1" = "init" ]; then
 
 fi
 
-if [ "$1" = "create_note" ]; then
+if [ "$1" == "create_note" ]; then
   create_ctf_base_page
 fi
 
-if [ "$1" = "update" ]; then
+if [ "$1" == "update" ]; then
   get_version_number
   update_version_environment  "$version"
 fi
 
-if [ "$1" = "start" ]; then
+if [ "$1" == "start" ]; then
   docker-compose -p hedgedoc up -d
 fi
 
-if [ "$1" = "stop" ]; then
+if [ "$1" == "stop" ]; then
   docker-compose stop
 fi
 
-if [ "$1" = "destroy" ]; then
+if [ "$1" == "destroy" ]; then
   docker-compose down
   docker volume rm hedgedoc_database
   docker volume rm hedgedoc_uploads
